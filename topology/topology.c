@@ -28,8 +28,12 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <dlfcn.h>
+#include <getopt.h>
+#include <alsa/asoundlib.h>
+#include <assert.h>
 
 #include "topology.h"
+#include "gettext.h"
 
 static snd_output_t *log;
 
@@ -57,7 +61,7 @@ int main(int argc, char *argv[])
 		{0, 0, 0, 0},
 	};
 	char *source_file = NULL, *output_file = NULL;
-	int err, verbose = 0;
+	int c, err, verbose = 0, option_index;
 
 #ifdef ENABLE_NLS
 	setlocale(LC_ALL, "");
@@ -70,10 +74,10 @@ int main(int argc, char *argv[])
 	while ((c = getopt_long(argc, argv, short_options, long_options, &option_index)) != -1) {
 		switch (c) {
 		case 'h':
-			usage(command);
+			usage(argv[0]);
 			return 0;
 		case 'v':
-			verbose = atoi(otparg);
+			verbose = atoi(optarg);
 			break;
 		case 'c':
 			source_file = optarg;
