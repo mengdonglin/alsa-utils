@@ -31,28 +31,81 @@
 
 #include "topology.h"
 
+static snd_output_t *log;
+
 static void usage(char *name)
 {
-	fprintf(stdout, "usage: %s config outfile [options]\n\n", name);
-
-	fprintf(stdout, "Add vendor firmware text	[-vfw firmware]\n");
-	exit(0);
+	printf(
+_("Usage: %s [OPTIONS]...\n"
+"\n"
+"-h, --help              help\n"
+"-c, --compile=FILE      compile file\n"
+"-v, --verbose=LEVEL     set verbosity level (0...1)\n"
+"-o, --output=FILE       set output file\n"
+), name);
 }
 
 int main(int argc, char *argv[])
 {
 	snd_tplg_t *snd_tplg;
-	
-	if (argc < 3)
+	static const char short_options[] = "hc:v:o:";
+	static const struct option long_options[] = {
+		{"help", 0, 0, 'h'},
+		{"verbose", 0, 0, 'v'},
+		{"compile", 0, 0, 'c'},
+		{"output", 0, 0, 'o'},
+		{0, 0, 0, 0},
+	};
+	char *source_file = NULL, *output_file = NULL;
+	int err, verbose = 0;
+
+#ifdef ENABLE_NLS
+	setlocale(LC_ALL, "");
+	textdomain(PACKAGE);
+#endif
+
+	err = snd_output_stdio_attach(&log, stderr, 0);
+	assert(err >= 0);
+
+	while ((c = getopt_long(argc, argv, short_options, long_options, &option_index)) != -1) {
+		switch (c) {
+		case 'h':
+			usage(command);
+			return 0;
+		case 'v':
+			verbose = atoi(otparg);
+			break;
+		case 'c':
+			source_file = optarg;
+			break;
+		case 'L':
+			output_file = optarg;
+			break;
+		default:
+			fprintf(stderr, _("Try `%s --help' for more information.\n"), argv[0]);
+			return 1;
+		}
+	}
+
+	if (source_file == NULL || output_file == NULL) {
 		usage(argv[0]);
+		return 1;
+	}
 
 	snd_tplg = snd_tplg_new();
 	if (snd_tplg == NULL) {
-		fprintf(stderr, "failed to open %s\n", argv[argc - 1]);
-		exit(0);
+		fprintf(stderr, _("failed to create new topology context\n"));
+		return 1;
 	}
 
-	snd_tplg_build(snd_tplg, argv[1], argv[2]);
+	snd_tplg_verbose(snd_tplg, verbose);
+
+	err = snd_tplg_build_file(snd_tplg, source_file, output_file);
+	if (err < 0) {
+		fprintf(stderr, _("failed to compile context %s\n"), source_file);
+		snd_tplg_free(snd_tplg);
+		return 1;
+	}
 
 	snd_tplg_free(snd_tplg);
 	return 0;
