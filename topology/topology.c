@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 		case 'c':
 			source_file = optarg;
 			break;
-		case 'L':
+		case 'o':
 			output_file = optarg;
 			break;
 		default:
