@@ -170,7 +170,7 @@ static int add_master_playback_volume(snd_tplg_t *tplg)
 	//m.platform_max = 31;	/* jinyao: correct? */
 
 	memset(&t, 0, sizeof(t));
-	t.type = OBJECT_TYPE_MIXER;
+	t.type = SND_TPLG_TYPE_MIXER;
 	t.mixer = &m;
 
 	return snd_tplg_add_object(tplg, &t);
@@ -266,7 +266,7 @@ static int add_media0_playback_volume(snd_tplg_t *tplg)
 	//m.platform_max = 31;	/* jinyao: correct? */
 
 	memset(&t, 0, sizeof(t));
-	t.type = OBJECT_TYPE_MIXER;
+	t.type = SND_TPLG_TYPE_MIXER;
 	t.mixer = &m;
 
 	return snd_tplg_add_object(tplg, &t);
@@ -362,7 +362,7 @@ static int add_media1_playback_volume(snd_tplg_t *tplg)
 	//m.platform_max = 31;	/* jinyao: correct? */
 
 	memset(&t, 0, sizeof(t));
-	t.type = OBJECT_TYPE_MIXER;
+	t.type = SND_TPLG_TYPE_MIXER;
 	t.mixer = &m;
 
 	return snd_tplg_add_object(tplg, &t);
@@ -458,7 +458,7 @@ static int add_mic_capture_volume(snd_tplg_t *tplg)
 	//m.platform_max = 31;	/* jinyao: correct? */
 
 	memset(&t, 0, sizeof(t));
-	t.type = OBJECT_TYPE_MIXER;
+	t.type = SND_TPLG_TYPE_MIXER;
 	t.mixer = &m;
 
 	return snd_tplg_add_object(tplg, &t);
@@ -485,7 +485,7 @@ static int add_ssp0_codec_in(snd_tplg_t *tplg)
 	w.reg  = -1;
 
 	memset(&t, 0, sizeof(t));
-	t.type = OBJECT_TYPE_DAPM_WIDGET;
+	t.type = SND_TPLG_TYPE_DAPM_WIDGET;
 	t.index = 1;
 	t.widget = &w;
 
@@ -513,7 +513,7 @@ static int add_ssp0_codec_out(snd_tplg_t *tplg)
 	w.reg  = -1;
 
 	memset(&t, 0, sizeof(t));
-	t.type = OBJECT_TYPE_DAPM_WIDGET;
+	t.type = SND_TPLG_TYPE_DAPM_WIDGET;
 	t.index = 1;
 	t.widget = &w;
 
@@ -541,7 +541,7 @@ static int add_ssp1_bt_in(snd_tplg_t *tplg)
 	w.reg  = -1;
 
 	memset(&t, 0, sizeof(t));
-	t.type = OBJECT_TYPE_DAPM_WIDGET;
+	t.type = SND_TPLG_TYPE_DAPM_WIDGET;
 	t.index = 1;
 	t.widget = &w;
 
@@ -569,7 +569,7 @@ static int add_ssp1_bt_out(snd_tplg_t *tplg)
 	w.reg  = -1;
 
 	memset(&t, 0, sizeof(t));
-	t.type = OBJECT_TYPE_DAPM_WIDGET;
+	t.type = SND_TPLG_TYPE_DAPM_WIDGET;
 	t.index = 1;
 	t.widget = &w;
 
@@ -597,7 +597,7 @@ static int add_playback_vmixer(snd_tplg_t *tplg)
 	w.reg  = -1;
 
 	memset(&t, 0, sizeof(t));
-	t.type = OBJECT_TYPE_DAPM_WIDGET;
+	t.type = SND_TPLG_TYPE_DAPM_WIDGET;
 	t.index = 1;
 	t.widget = &w;
 
@@ -641,7 +641,7 @@ static int add_graph(snd_tplg_t *tplg)
 	memcpy(g->elem, elems, sizeof(struct snd_tplg_graph_elem) * g->count);
 
 	memset(&t, 0, sizeof(t));
-	t.type = OBJECT_TYPE_DAPM_GRAPH;
+	t.type = SND_TPLG_TYPE_DAPM_GRAPH;
 	t.graph = g;
 
 	return snd_tplg_add_object(tplg, &t);
