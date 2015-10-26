@@ -649,8 +649,132 @@ static int add_graph(snd_tplg_t *tplg)
 	return snd_tplg_add_object(tplg, &t);
 }
 
+struct snd_tplg_stream_caps_template bdw_pcm_caps_sys_play  = {
+	.name = "System Playback",
+	.formats = (1 << SNDRV_PCM_FORMAT_S16_LE) | (1 << SNDRV_PCM_FORMAT_S24_LE),
+	.rate_min = 48000,
+	.rate_max = 48000,
+	.channels_min = 2,
+	.channels_max = 2,
+};
+
+struct snd_tplg_stream_caps_template bdw_pcm_caps_anlaog_cap  = {
+	.name = "Analog Capture",
+	.formats = (1 << SNDRV_PCM_FORMAT_S16_LE) | (1 << SNDRV_PCM_FORMAT_S24_LE),
+	.rate_min = 48000,
+	.rate_max = 48000,
+	.channels_min = 2,
+	.channels_max = 4,
+};
+
+struct snd_tplg_stream_caps_template bdw_pcm_caps_loopbk_cap  = {
+	.name = "Loopback Capture",
+	.formats = (1 << SNDRV_PCM_FORMAT_S16_LE) | (1 << SNDRV_PCM_FORMAT_S24_LE),
+	.rate_min = 48000,
+	.rate_max = 48000,
+	.channels_min = 2,
+	.channels_max = 2,
+};
+
+
+struct snd_tplg_stream_caps_template bdw_pcm_caps_off0_play  = {
+	.name = "Offload0 Playback",
+	.formats = (1 << SNDRV_PCM_FORMAT_S16_LE) | (1 << SNDRV_PCM_FORMAT_S24_LE),
+	.rate_min = 8000,
+	.rate_max = 192000,
+	.channels_min = 2,
+	.channels_max = 2,
+};
+
+struct snd_tplg_stream_caps_template bdw_pcm_caps_off1_play  = {
+	.name = "Offload1 Playback",
+	.formats = (1 << SNDRV_PCM_FORMAT_S16_LE) | (1 << SNDRV_PCM_FORMAT_S24_LE),
+	.rate_min = 8000,
+	.rate_max = 48000,
+	.channels_min = 2,
+	.channels_max = 2,
+};
+
+static char priv_data[] = {0x08, 0x07,0x06,0x05,0x04, 0x03,0x02,0x01};
+struct snd_soc_tplg_private *test_priv = NULL;
+
+
+static struct snd_tplg_pcm_template bdw_pcms[] = {
+	{
+		.pcm_name = "System Playback/Capture",
+		.dai_name =  "System Pin",
+		.pcm_id = 0,
+		.dai_id = 0,
+		.playback = 1,
+		.capture = 1,
+		.caps[0] = &bdw_pcm_caps_sys_play,
+		.caps[1] = &bdw_pcm_caps_anlaog_cap,
+	},
+	{
+		.pcm_name = "Offload0 Playback",
+		.dai_name =  "Offload0 Pin",
+		.pcm_id = 0,
+		.dai_id = 1,
+		.playback = 1,
+		.caps[0] = &bdw_pcm_caps_off0_play,
+	},
+	{
+		.pcm_name = "Offload1 Playback",
+		.dai_name =  "Offload1 Pin",
+		.pcm_id = 0,
+		.dai_id = 2,
+		.playback = 1,
+		.caps[0] = &bdw_pcm_caps_off1_play,
+	},
+	{
+		.pcm_name = "Loopback",
+		.dai_name =  "Loopback Pin",
+		.pcm_id = 0,
+		.dai_id = 3,
+		.capture = 1,
+		.caps[1] = &bdw_pcm_caps_loopbk_cap,
+	},
+};
+
+static int add_pcms(snd_tplg_t *tplg)
+{
+	snd_tplg_obj_template_t t;
+	int ret, i;
+	struct snd_soc_tplg_private *priv = NULL;
+
+	priv = calloc(sizeof(*priv)+8, 1);
+	if (!priv)
+		return -1;
+	priv->size = 4;
+	memcpy(priv->data, priv_data, 4);
+
+	for (i = 0; i < 4 ; i++) {
+		t.type = SND_TPLG_TYPE_PCM;
+		t.pcm = &bdw_pcms[i];
+		t.pcm->priv = priv;
+
+		ret = snd_tplg_add_object(tplg, &t) ;
+		if (ret) {
+			fprintf(stderr, "add pcm %s failed\n", t.pcm->pcm_name);
+			return ret;
+		}
+
+		fprintf(stderr, "add pcm %s succesfully\n", t.pcm->pcm_name);
+
+	}
+
+	free(priv);
+	return 0;
+}
+
 int test_c_api_for_bdw(snd_tplg_t *tplg, const char *outfile)
 {
+	test_priv = calloc(sizeof(*test_priv)+8, 1);
+	if (!test_priv)
+		return -1;
+	test_priv->size = 4;
+	memcpy(test_priv->data, priv_data, 4);
+
 	if (add_master_playback_volume(tplg) != 0) {
 		fprintf(stderr, "add mixer 'Master Playback Volume' failed\n");
 		return -1;
@@ -701,6 +825,12 @@ int test_c_api_for_bdw(snd_tplg_t *tplg, const char *outfile)
 		return -1;
 	}
 
+	if (add_pcms(tplg) != 0) {
+		fprintf(stderr, "add PCMs failed\n");
+		return -1;
+	}
+
+	free(test_priv);
 	return snd_tplg_build(tplg, outfile);
 }
 
