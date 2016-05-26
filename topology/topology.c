@@ -736,6 +736,60 @@ static struct snd_tplg_pcm_template bdw_pcms[] = {
 	},
 };
 
+
+static struct snd_tplg_link_cmpnt_template be_link_cpu = {
+	.dai_name = "snd-soc-dummy-dai",
+};
+
+static struct snd_tplg_link_cmpnt_template be_link_codec = {
+	.name = "i2c-INT343A:00",
+	.dai_name = "rt286-aif1",
+};
+
+static struct snd_tplg_hw_config_template be_link_hw_config = {
+	.fmt = SND_SOC_DAI_FORMAT_I2S,
+	.bclk_master = 1,
+	.fsync_master =1,
+};
+
+static struct snd_tplg_link_template bdw_be_link = {
+		.id = 8, /* for test only */
+		.name = "Codec",
+		.cpu = &be_link_cpu,
+		.codecs = &be_link_codec,
+		.num_codecs = 1,
+		.hw_config = &be_link_hw_config,
+		.num_hw_configs = 1,
+		.flag_mask = SND_SOC_TPLG_LNK_FLGBIT_IGNORE_SUSPEND
+				| SND_SOC_TPLG_LNK_FLGBIT_IGNORE_POWERDOWN_TIME
+				| SND_SOC_TPLG_LNK_FLGBIT_DPCM_PLAYBACK
+				| SND_SOC_TPLG_LNK_FLGBIT_DPCM_CAPTURE,
+		.flags = SND_SOC_TPLG_LNK_FLGBIT_IGNORE_SUSPEND
+				| SND_SOC_TPLG_LNK_FLGBIT_IGNORE_POWERDOWN_TIME
+				| SND_SOC_TPLG_LNK_FLGBIT_DPCM_PLAYBACK
+				| SND_SOC_TPLG_LNK_FLGBIT_DPCM_CAPTURE,
+};
+
+static int add_be_links(snd_tplg_t *tplg)
+{
+	snd_tplg_obj_template_t t;
+	int ret;
+
+	t.type = SND_TPLG_TYPE_BE;
+	t.link = &bdw_be_link;
+
+	ret = snd_tplg_add_object(tplg, &t);
+
+	if (ret) {
+		fprintf(stderr, "add BE link %s failed\n", t.link->name);
+		return ret;
+	}
+
+	fprintf(stderr, "add BE link %s succesfully\n", t.link->name);
+
+	return 0;
+}
+
 static int add_pcms(snd_tplg_t *tplg)
 {
 	snd_tplg_obj_template_t t;
@@ -827,6 +881,11 @@ int test_c_api_for_bdw(snd_tplg_t *tplg, const char *outfile)
 
 	if (add_pcms(tplg) != 0) {
 		fprintf(stderr, "add PCMs failed\n");
+		return -1;
+	}
+
+	if (add_be_links(tplg) != 0) {
+		fprintf(stderr, "add BE links failed\n");
 		return -1;
 	}
 
