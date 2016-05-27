@@ -770,6 +770,33 @@ static struct snd_tplg_link_template bdw_be_link = {
 				| SND_SOC_TPLG_LNK_FLGBIT_DPCM_CAPTURE,
 };
 
+static struct snd_tplg_stream_caps_template ssp0_playback  = {
+	.name = "ssp0 Tx",
+	.formats = 1 << SNDRV_PCM_FORMAT_S16_LE ,
+	.rate_min = 48000,
+	.rate_max = 48000,
+	.channels_min = 2,
+	.channels_max = 2,
+};
+
+static struct snd_tplg_stream_caps_template ssp0_capture  = {
+	.name = "ssp0 Rx",
+	.formats = 1 << SNDRV_PCM_FORMAT_S16_LE,
+	.rate_min = 48000,
+	.rate_max = 48000,
+	.channels_min = 2,
+	.channels_max = 2,
+};
+
+static struct snd_tplg_be_dai_template be = {
+	.dai_id = 1,
+	.dai_name = "SSP0 Pin",
+	.playback = 1,
+	.capture = 1,
+	.caps[0] = &ssp0_playback,
+	.caps[1] = &ssp0_capture,
+};
+
 static int add_be_links(snd_tplg_t *tplg)
 {
 	snd_tplg_obj_template_t t;
@@ -787,6 +814,25 @@ static int add_be_links(snd_tplg_t *tplg)
 
 	fprintf(stderr, "add BE link %s succesfully\n", t.link->name);
 
+	return 0;
+}
+
+static int add_be_dai(snd_tplg_t *tplg)
+{
+	snd_tplg_obj_template_t t;
+	int ret;
+
+	/* Just for test. BDW does not explicity define a BE DAI */
+	t.type = SND_TPLG_TYPE_BE_DAI;
+	t.be_dai= &be;
+
+	ret = snd_tplg_add_object(tplg, &t);
+	if (ret) {
+		fprintf(stderr, "add BE DAI %s failed\n", be.dai_name);
+		return ret;
+	}
+
+	fprintf(stderr, "add BE link %s succesfully\n", be.dai_name);
 	return 0;
 }
 
@@ -886,6 +932,11 @@ int test_c_api_for_bdw(snd_tplg_t *tplg, const char *outfile)
 
 	if (add_be_links(tplg) != 0) {
 		fprintf(stderr, "add BE links failed\n");
+		return -1;
+	}
+
+	if (add_be_dai(tplg) != 0) {
+		fprintf(stderr, "add BE DAI failed\n");
 		return -1;
 	}
 
