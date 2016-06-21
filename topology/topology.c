@@ -709,6 +709,8 @@ static struct snd_tplg_pcm_template bdw_pcms[] = {
 		.capture = 1,
 		.caps[0] = &bdw_pcm_caps_sys_play,
 		.caps[1] = &bdw_pcm_caps_anlaog_cap,
+		.trigger[0] = SND_SOC_DPCM_TRIGGER_POST,
+		.trigger[1] = SND_SOC_DPCM_TRIGGER_POST,
 	},
 	{
 		.pcm_name = "Offload0 Playback",
@@ -717,6 +719,8 @@ static struct snd_tplg_pcm_template bdw_pcms[] = {
 		.dai_id = 1,
 		.playback = 1,
 		.caps[0] = &bdw_pcm_caps_off0_play,
+		.trigger[0] = SND_SOC_DPCM_TRIGGER_POST,
+		.trigger[1] = SND_SOC_DPCM_TRIGGER_POST,
 	},
 	{
 		.pcm_name = "Offload1 Playback",
@@ -725,6 +729,8 @@ static struct snd_tplg_pcm_template bdw_pcms[] = {
 		.dai_id = 2,
 		.playback = 1,
 		.caps[0] = &bdw_pcm_caps_off1_play,
+		.trigger[0] = SND_SOC_DPCM_TRIGGER_POST,
+		.trigger[1] = SND_SOC_DPCM_TRIGGER_POST,
 	},
 	{
 		.pcm_name = "Loopback",
@@ -733,6 +739,8 @@ static struct snd_tplg_pcm_template bdw_pcms[] = {
 		.dai_id = 3,
 		.capture = 1,
 		.caps[1] = &bdw_pcm_caps_loopbk_cap,
+		.trigger[0] = SND_SOC_DPCM_TRIGGER_POST,
+		.trigger[1] = SND_SOC_DPCM_TRIGGER_POST,
 	},
 };
 
